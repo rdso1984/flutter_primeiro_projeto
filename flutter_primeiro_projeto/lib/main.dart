@@ -29,7 +29,19 @@ class MyApp extends StatelessWidget {
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primaryColor: Colors.green,
+        primaryColorLight: Colors.red,
+        primaryColorDark: Colors.green,
+        primarySwatch: Colors.blue,
+        fontFamily: 'Roboto',
+
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.green,
+          ),
+        ),
       ),
       routes: {
         '/': (context) => const HomePage(),

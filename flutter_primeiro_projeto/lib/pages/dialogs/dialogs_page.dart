@@ -56,8 +56,20 @@ class DialogsPage extends StatelessWidget {
                     )
                   );
                 }, child: Text('Alert Dialog')),
-                ElevatedButton(onPressed: (){}, child: Text('Time Dialog')),
-                ElevatedButton(onPressed: (){}, child: Text('Date Picker')),
+                ElevatedButton(onPressed: () async {
+                  final selectedTime = await showTimePicker(
+                    context: context, 
+                    initialTime: TimeOfDay.now(),
+                  );
+                }, child: Text('Time Picker')),
+                ElevatedButton(onPressed: () async {
+                  final selectedDate = await showDatePicker(
+                    context: context, 
+                    initialDate: DateTime.now(), 
+                    firstDate: DateTime(2000), 
+                    lastDate: DateTime(2100),
+                  );
+                }, child: Text('Date Picker')),
               ],
             ),
            ),
