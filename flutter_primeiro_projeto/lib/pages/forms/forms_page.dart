@@ -11,6 +11,13 @@ class FormsPage extends StatefulWidget {
 class _FormsPageState extends State<FormsPage> {
 
   final formKey = GlobalKey<FormState>();
+  final senhaEC = TextEditingController();
+
+  @override
+  void dispose() {
+    senhaEC.dispose();
+    super.dispose();
+  }
 
    @override
    Widget build(BuildContext context) {
@@ -29,14 +36,25 @@ class _FormsPageState extends State<FormsPage> {
                     decoration: InputDecoration(labelText: 'E-mail'),
                   ),
                   TextFormField(
+                    controller: senhaEC,
                     decoration: InputDecoration(labelText: 'Senha'),
                     obscureText: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (String? value) {
+                      if(value == null || value.isEmpty){
+                        return 'Senha obrigatória';
+                      }
+                      if(value.length < 6){
+                        return 'Senha deve ter no mínimo 6 caracteres';
+                      }
+                      return null;
+                    },
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       var formValid = formKey.currentState?.validate() ?? false;
-                      var message = 'Formulário inválido!';
+                      var message = 'Formulário inválido! Dado inválido ${senhaEC.text}';
 
                       if(formValid){
                         message = 'Formulário válido!';
