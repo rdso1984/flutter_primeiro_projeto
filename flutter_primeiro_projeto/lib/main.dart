@@ -1,6 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_primeiro_projeto/pages/botoes_rotacao_texto/botoes_rotacao_texto.dart';
+import 'package:flutter_primeiro_projeto/pages/bottom_navigation_bar/bottom_navigation_bar_page.dart';
 import 'package:flutter_primeiro_projeto/pages/cidades/cidades_page.dart';
 import 'package:flutter_primeiro_projeto/pages/container/container_page.dart';
 import 'package:flutter_primeiro_projeto/pages/dialogs/dialogs_page.dart';
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
         '/cidades': (context) => const CidadesPage(),
         '/stack': (context) => const StackPage(),
         '/stack2': (context) => const StackPage2(),
+        '/bottom_navigation_bar': (context) => BottomNavigationBarPage(),
       },
     );
   }
