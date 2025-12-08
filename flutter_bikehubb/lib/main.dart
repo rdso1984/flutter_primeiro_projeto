@@ -1,4 +1,5 @@
 import 'package:bikehubb/features/home/home_page.dart';
+import 'package:bikehubb/features/login/login_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -8,7 +9,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
+  @override 
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BikeHubb',
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => const HomePage(),
+        '/login': (context) => const LoginPage(),
       },
     );
   }

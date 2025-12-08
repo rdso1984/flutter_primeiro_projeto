@@ -1,3 +1,4 @@
+import 'package:bikehubb/common/app_footer.dart';
 import 'package:bikehubb/common/stat_card.dart';
 import 'package:bikehubb/models/bike_ad.dart';
 import 'package:bikehubb/services/bike_ad_service.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 enum PopupMenuPages {
   homepage,
   login,
-  register,
+  // register,
 }
 
 class HomePage extends StatefulWidget {
@@ -51,29 +52,40 @@ class _HomePageState extends State<HomePage>
        return Scaffold(
            appBar: AppBar(
             backgroundColor: Color.fromRGBO(35, 39, 42, 1),
-              title: AnimatedBuilder(
+            title: AnimatedBuilder(
                       animation: _fadeAnimation,
                       builder: (context, child) {
-                        return Text(
-                          'BikeHubb',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Color.lerp(
-                              Color.fromARGB(255, 24, 92, 62), // Cor mais escura
-                              Color(0xFF22c55e), // Cor original
-                              _fadeAnimation.value,
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/images/bikehubb_logo.png',
+                              height: 32,
+                              width: 32,
                             ),
-                            fontFamily: 'Segoe UI, Roboto',
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(0, 0),
-                                blurRadius: 20,
-                                color: const Color.fromARGB(255, 27, 145, 63).withOpacity(0.5),
+                            SizedBox(width: 12),
+                            Text(
+                              'BikeHubb',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color.lerp(
+                                  Color.fromARGB(255, 24, 92, 62), // Cor mais escura
+                                  Color(0xFF22c55e), // Cor original
+                                  _fadeAnimation.value,
+                                ),
+                                fontFamily: 'Segoe UI, Roboto',
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(0, 0),
+                                    blurRadius: 20,
+                                    color: const Color.fromARGB(255, 27, 145, 63).withOpacity(0.5),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -92,21 +104,17 @@ class _HomePageState extends State<HomePage>
                     case PopupMenuPages.login:
                       Navigator.pushNamed(context, '/login');
                       break;
-                    case PopupMenuPages.register:
-                      Navigator.pushNamed(context, '/register');
-                      break;
+                    // case PopupMenuPages.register:
+                    //   Navigator.pushNamed(context, '/register');
+                    //   break;
                   }
                 },
                 itemBuilder: (BuildContext context) {
                   return <PopupMenuItem<PopupMenuPages>>[
                     const PopupMenuItem<PopupMenuPages>(
-                      value: PopupMenuPages.homepage,
-                      child: Text('Página Inicial'),
+                      value: PopupMenuPages.login,
+                      child: Text('Login'),
                     ),
-                    // const PopupMenuItem<PopupMenuPages>(
-                    //   value: PopupMenuPages.login,
-                    //   child: Text('Login'),
-                    // ),
                     // const PopupMenuItem<PopupMenuPages>(
                     //   value: PopupMenuPages.register,
                     //   child: Text('Registrar'),
@@ -121,6 +129,7 @@ class _HomePageState extends State<HomePage>
              child: Column(
                children: [
                  Container(
+                  height: MediaQuery.of(context).size.height - kToolbarHeight,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -135,13 +144,14 @@ class _HomePageState extends State<HomePage>
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.7,
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(height: 50),
-                          Icon(
-                            Icons.pedal_bike,
-                            color: Colors.white,
-                            size: 100,
+                          Image.asset(  
+                            'assets/images/bikehubb_logo.png',
+                            width: 150,
+                            height: 150,
                           ),
+                          SizedBox(height: 30),
                         AnimatedBuilder(
                           animation: _fadeAnimation,
                           builder: (context, child) {
@@ -252,46 +262,100 @@ class _HomePageState extends State<HomePage>
                             ),
                           ),
                         ),
-                        SizedBox(height: 40),
-                        StatCard(
-                          icon: Icons.check_circle,
-                          value: '10K+',
-                          label: 'Bicicletas Negociadas',
-                        ),
-                        SizedBox(height: 30),
-                        StatCard(
-                          icon: Icons.people,
-                          value: '5K+',
-                          label: 'Usuários Ativos',
-                        ),
-                        SizedBox(height: 30),
-                        StatCard(
-                          icon: Icons.location_city,
-                          value: '50+',
-                          label: 'Cidades',
-                        ),
-                        SizedBox(height: 30),
-                        StatCard(
-                          icon: Icons.thumb_up,
-                          value: '99%',
-                          label: 'Satisfação',
-                        ),
-                        SizedBox(height: 50),
-                        ],
+                      ],
                       ),
                     ),
                   ),
                  ),
-                Container(
+
+                 // Seção de estatísticas
+                 Container(
                   decoration: BoxDecoration(
-                    color: Color(0xFF1c222e),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF1c222e),
+                        Color(0xFF179447),
+                      ],
+                    ),
                   ),
                   child: Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.7,
                       child: Column(
                         children: [
+                          SizedBox(height: 40),
+                          Divider(
+                            color: Colors.white24,
+                            thickness: 1,
+                          ),
+                          SizedBox(height: 20),
+                          AspectRatio(
+                            aspectRatio: 1.5,
+                            child: PageView(
+                              padEnds: false,
+                              controller: PageController(
+                                viewportFraction: 0.65,
+                              ),
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: StatCard(
+                                    icon: Icons.check_circle,
+                                    value: '10K+',
+                                    label: 'Bicicletas Negociadas',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: StatCard(
+                                    icon: Icons.people,
+                                    value: '5K+',
+                                    label: 'Usuários Ativos',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: StatCard(
+                                    icon: Icons.location_city,
+                                    value: '50+',
+                                    label: 'Cidades',
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  child: StatCard(
+                                    icon: Icons.thumb_up,
+                                    value: '99%',
+                                    label: 'Satisfação',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            color: Colors.white24,
+                            thickness: 1,
+                          ),
                           SizedBox(height: 50),
+                        ],
+                      ),
+                    ),
+                  ),
+                 ),
+
+                 //Grid bicicletas em destaque
+                Container(
+                  decoration: BoxDecoration(
+                    color: Color(0xFF1c222e),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: Column(
+                        children: [
+                          SizedBox(height: 40),
                           AnimatedBuilder(
                           animation: _fadeAnimation,
                           builder: (context, child) {
@@ -330,9 +394,15 @@ class _HomePageState extends State<HomePage>
                           ),
                         ),
                         SizedBox(height: 30),
+                        Divider(
+                          color: Colors.white24,
+                          thickness: 1,
+                        ),
+                        SizedBox(height: 20),
+
                         // Grid de anúncios vindos do banco de dados
                         FutureBuilder<List<BikeAd>>(
-                          future: _bikeAdService.getFeaturedBikes(limit: 4),
+                          future: _bikeAdService.getFeaturedBikes(limit: 3),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return Center(
@@ -387,32 +457,239 @@ class _HomePageState extends State<HomePage>
 
                             final bikes = snapshot.data!;
 
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 2 : 1,
-                                childAspectRatio: 0.75,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
+                            return SizedBox(
+                              height: 340,
+                              child: PageView.builder(
+                                padEnds: false,
+                                controller: PageController(
+                                  viewportFraction: 0.92,
+                                ),
+                                itemCount: bikes.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 8),
+                                    child: BikeAdCard(
+                                      bikeAd: bikes[index],
+                                      onTap: () {
+                                        // Navegação para detalhes do anúncio
+                                        // Navigator.pushNamed(
+                                        //   context,
+                                        //   '/bike-details',
+                                        //   arguments: bikes[index],
+                                        // );
+                                        print('Clicou no anúncio: ${bikes[index].title}');
+                                      },
+                                    ),
+                                  );
+                                },
                               ),
-                              itemCount: bikes.length,
-                              itemBuilder: (context, index) {
-                                return BikeAdCard(
-                                  bikeAd: bikes[index],
-                                  onTap: () {
-                                    // Navegação para detalhes do anúncio
-                                    // Navigator.pushNamed(
-                                    //   context,
-                                    //   '/bike-details',
-                                    //   arguments: bikes[index],
-                                    // );
-                                    print('Clicou no anúncio: ${bikes[index].title}');
-                                  },
-                                );
-                              },
                             );
                           },
+                        ),
+                        SizedBox(height: 20),
+                        Divider(
+                          color: Colors.white24,
+                          thickness: 1,
+                        ),
+                        SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          child: ElevatedButton(
+                            onPressed: (){
+                              // Navigator.pushNamed(context, '/advertise');
+                              Navigator.pushNamed(context, '/');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF179447),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                side: BorderSide(
+                                  color: Color(0xFF22c55e),
+                                  width: 1,
+                                ),
+                              ),
+                              elevation: 4,
+                            ),
+                            child: Text(
+                              'Ver todos os Anúncios',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 30),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                //Passos para anunciar
+                Container(
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 36, 46, 65),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: Column(
+                        children: [
+                          SizedBox(height: 40),
+                          AnimatedBuilder(
+                          animation: _fadeAnimation,
+                          builder: (context, child) {
+                            return Text(
+                              'Como Funciona',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color.lerp(
+                                  Color.fromARGB(255, 24, 92, 62), // Cor mais escura
+                                  Color(0xFF22c55e), // Cor original
+                                  _fadeAnimation.value,
+                                ),
+                                fontFamily: 'Segoe UI, Roboto',
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                shadows: [
+                                  Shadow(
+                                    offset: Offset(0, 0),
+                                    blurRadius: 20,
+                                    color: const Color.fromARGB(255, 27, 145, 63).withOpacity(0.5),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          'Simples, Rápido e Seguro',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Segoe UI, Roboto',
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        Divider(
+                          color: Colors.white24,
+                          thickness: 1,
+                        ),
+                        AspectRatio(
+                          aspectRatio: 1.4,
+                          child: PageView(
+                            padEnds: false,
+                            controller: PageController(
+                              viewportFraction: 0.75,
+                            ),
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: StatCard(
+                                  icon: Icons.check_circle,
+                                  value: '1. Cadastre-se',
+                                  label: 'Crie sua conta gratuitamente',
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: StatCard(
+                                  icon: Icons.people,
+                                  value: '2. Encontre sua Bike',
+                                  label: 'Use nossos filtros avançados para encontrar a bicicleta perfeita para você',
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: StatCard(
+                                  icon: Icons.location_city,
+                                  value: '3. Entre em Contato',
+                                  label: 'Converse com o vendedor de forma segura e negocie diretamente',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Divider(
+                          color: Colors.white24,
+                          thickness: 1,
+                        ),
+                        SizedBox(height: 50),
+                        ],
+                    ),
+                  ),
+                ),
+                ),
+
+                //Texto final
+                Container(
+                  decoration: BoxDecoration(
+                    color: Color(0xFF169946),
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: Column(
+                        children: [
+                          SizedBox(height: 50),
+                          Text('Pronto para encontrar sua próxima bike?',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Segoe UI, Roboto',
+                              color: Color(0xFF212b25),
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Text('Junte-se a Milhares de Ciclistas que Já Encontraram a Bicicleta Ideal',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Segoe UI, Roboto',
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          child: ElevatedButton(
+                            onPressed: (){
+                              // Navigator.pushNamed(context, '/search');
+                              Navigator.pushNamed(context, '/');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF1c222e),
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                                side: BorderSide(
+                                  color: Color(0xFF22c55e),
+                                  width: 1,
+                                ),
+                              ),
+                              elevation: 4,
+                            ),
+                            child: Text(
+                              'Começar Agora\nÉ Grátis!!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                         SizedBox(height: 50),
                         ],
@@ -420,6 +697,10 @@ class _HomePageState extends State<HomePage>
                     ),
                   ),
                 ),
+
+                // Rodapé
+                AppFooter(),
+
                ],
              ),
            ),

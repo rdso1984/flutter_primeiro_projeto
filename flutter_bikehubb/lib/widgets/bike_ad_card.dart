@@ -42,10 +42,10 @@ class BikeAdCard extends StatelessWidget {
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: Color(0xFF1c222e),
-                            child: Icon(
-                              Icons.pedal_bike,
-                              size: 60,
-                              color: Colors.white54,
+                            child: Image.asset( 
+                              'assets/images/bikehubb_logo.png',
+                              width: 20,
+                              height: 20,
                             ),
                           );
                         },
@@ -67,10 +67,10 @@ class BikeAdCard extends StatelessWidget {
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: Color(0xFF1c222e),
-                            child: Icon(
-                              Icons.pedal_bike,
-                              size: 60,
-                              color: Colors.white54,
+                            child: Image.asset( 
+                              'assets/images/bikehubb_logo.png',
+                              width: 20,
+                              height: 20,
                             ),
                           );
                         },
