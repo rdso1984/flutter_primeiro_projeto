@@ -1,3 +1,4 @@
+import 'package:bikehubb/config/supabase_config.dart';
 import 'package:bikehubb/features/dashboard/dashboard_page.dart';
 import 'package:bikehubb/features/home/home_page.dart';
 import 'package:bikehubb/features/login/login_page.dart';
@@ -9,9 +10,8 @@ void main() async {
 
   // Inicializa o Supabase
   await Supabase.initialize(
-    url: 'https://krlhnihkslmmihprkwqm.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtybGhuaWhrc2xtbWlocHJrd3FtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5NTkxMDUsImV4cCI6MjA2NTUzNTEwNX0.oD7ZOVTyvGy58u2HCSfoKwFcVxjhe0UUEAvcfSa7cp0',
+    url: SupabaseConfig.supabaseUrl,
+    anonKey: SupabaseConfig.supabaseAnonKey,
   );
 
   runApp(const MyApp());

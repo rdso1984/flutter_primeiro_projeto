@@ -95,4 +95,5 @@ flutter_launcher_icons:
   ios: false
   image_path: "assets/images/bikehubb_logo.png"
   adaptive_icon_background: "#1c222e"
-  #adaptive_icon_foreground: "assets/images/bikehubb_logo.png"
+  adaptive_icon_foreground: "assets/images/bikehubb_logo.png"
+  adaptive_icon_padding: 40
