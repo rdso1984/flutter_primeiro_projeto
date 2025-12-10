@@ -1,3 +1,4 @@
+import 'package:bikehubb/common/app_constants.dart';
 import 'package:bikehubb/common/app_footer.dart';
 import 'package:bikehubb/common/stat_card.dart';
 import 'package:bikehubb/models/bike_ad.dart';
@@ -31,6 +32,7 @@ class _HomePageState extends State<HomePage>
       duration: const Duration(seconds: 2),
       vsync: this,
     );
+
     _fadeAnimation = Tween<double>(
       begin: 0.3,
       end: 1.0,
@@ -38,6 +40,7 @@ class _HomePageState extends State<HomePage>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
+
     _animationController.repeat(reverse: true);
   }
 
@@ -51,7 +54,8 @@ class _HomePageState extends State<HomePage>
    Widget build(BuildContext context) {
        return Scaffold(
            appBar: AppBar(
-            backgroundColor: Color.fromRGBO(35, 39, 42, 1),
+            // backgroundColor: Color.fromRGBO(35, 39, 42, 1),
+            backgroundColor: AppColors.appBarColor,
             title: AnimatedBuilder(
                       animation: _fadeAnimation,
                       builder: (context, child) {

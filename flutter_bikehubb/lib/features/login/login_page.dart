@@ -1,5 +1,6 @@
 import 'package:bikehubb/common/app_constants.dart';
 import 'package:bikehubb/common/app_footer.dart';
+import 'package:bikehubb/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,6 +18,8 @@ class _LoginPageState extends State<LoginPage>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -168,6 +171,15 @@ class _LoginPageState extends State<LoginPage>
       controller: _emailController,
       style: const TextStyle(color: Colors.white),
       keyboardType: TextInputType.emailAddress,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor, insira seu email';
+        }
+        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+          return 'Por favor, insira um email válido';
+        }
+        return null;
+      },
       decoration: _buildInputDecoration(
         labelText: 'Email',
         hintText: 'seu@email.com',
@@ -181,6 +193,15 @@ class _LoginPageState extends State<LoginPage>
       controller: _passwordController,
       style: const TextStyle(color: Colors.white),
       obscureText: true,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor, insira sua senha';
+        }
+        if (value.length < 6) {
+          return 'A senha deve ter no mínimo 6 caracteres';
+        }
+        return null;
+      },
       decoration: _buildInputDecoration(
         labelText: 'Senha',
         hintText: '••••••••',
@@ -240,7 +261,7 @@ class _LoginPageState extends State<LoginPage>
 
   Widget _buildLoginButton() {
     return ElevatedButton(
-      onPressed: _handleLogin,
+      onPressed: _isLoading ? null : _handleLogin,
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primaryGreen,
         foregroundColor: AppColors.textWhite,
@@ -250,7 +271,16 @@ class _LoginPageState extends State<LoginPage>
         ),
         elevation: AppDimensions.elevationMedium,
       ),
-      child: const Text('ENTRAR', style: AppTextStyles.button),
+      child: _isLoading
+          ? const SizedBox(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.textWhite),
+              ),
+            )
+          : const Text('ENTRAR', style: AppTextStyles.button),
     );
   }
 
@@ -288,13 +318,81 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  void _handleLogin() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Lógica de login
+  Future<void> _handleLogin() async {
+    // Valida o formulário
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    // Remove o foco do teclado
+    FocusScope.of(context).unfocus();
+
+    // Mostra loading
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Faz login com Supabase
+      final result = await _authService.signInWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (result['success']) {
+        // Login bem-sucedido - navega para dashboard
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: AppColors.primaryGreen,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Navega para dashboard e remove todas as rotas anteriores
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/dashboard',
+          (route) => false,
+        );
+      } else {
+        // Login falhou - mostra mensagem de erro
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro inesperado: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   void _handleCreateAccount() {
     // Navegar para registro
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Página de registro em desenvolvimento'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 }
