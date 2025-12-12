@@ -1,4 +1,5 @@
 import 'package:bikehubb/common/app_constants.dart';
+import 'package:bikehubb/features/shared/drawer_bikehubb.dart';
 import 'package:bikehubb/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +10,7 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> 
+class _DashboardPageState extends State<DashboardPage>
     with SingleTickerProviderStateMixin {
   final AuthService _authService = AuthService();
   late Animation<double> _fadeAnimation;
@@ -23,14 +24,8 @@ class _DashboardPageState extends State<DashboardPage>
       duration: const Duration(seconds: 2),
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.3, 
-      end: 1.0
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeIn,
-      ),
+    _fadeAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
     _animationController.repeat(reverse: true);
@@ -47,51 +42,26 @@ class _DashboardPageState extends State<DashboardPage>
     final user = _authService.currentUser;
 
     return Scaffold(
-      drawer: Drawer(
-        backgroundColor: AppColors.cardBackground,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 36, 42, 35),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Image.asset(
-                    AppAssets.logo,
-                    width: 64,
-                    height: 64,
-                  ),
-                  const SizedBox(height: AppDimensions.paddingSmall),
-                  const Text(
-                    'BikeHubb',
-                    style: AppTextStyles.titleMedium,
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.dashboard, color: AppColors.textWhite),
-              title: const Text('Dashboard', style: AppTextStyles.bodyText),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: AppColors.textWhite),
-              title: const Text('Sair', style: AppTextStyles.bodyText),
-              onTap: _handleLogout,
-            ),
-          ],
-        ),
-      ),
+      drawer: DrawerBikehubb(),
       appBar: AppBar(
         backgroundColor: AppColors.appBarColor,
-        iconTheme: const IconThemeData(color: Colors.white),
+        // iconTheme: const IconThemeData(color: Colors.white),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Image.asset(
+              'assets/images/bikehubb_logo.png',
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              color: Color(0xFF22c55e),
+            ),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
         title: AnimatedBuilder(
-          animation: _fadeAnimation, 
+          animation: _fadeAnimation,
           builder: (context, child) {
             return Row(
               mainAxisSize: MainAxisSize.min,
@@ -104,7 +74,7 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
               ],
             );
-          }
+          },
         ),
         // actions: [
         //   IconButton(
@@ -123,15 +93,15 @@ class _DashboardPageState extends State<DashboardPage>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.check_circle,
-                  color: AppColors.primaryGreen,
-                  size: 80,
-                ),
-                const SizedBox(height: AppDimensions.paddingLarge),
+                // const SizedBox(height: AppDimensions.paddingLarge),
                 const Text(
                   'Bem-vindo ao Dashboard!',
                   style: AppTextStyles.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Gerencie seus anúncios de bicicletas',
+                  style: AppTextStyles.subtitle,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppDimensions.paddingMedium),
