@@ -9,10 +9,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializa o Supabase
-  await Supabase.initialize(
-    url: SupabaseConfig.supabaseUrl,
-    anonKey: SupabaseConfig.supabaseAnonKey,
-  );
+  try {
+    await Supabase.initialize(
+      url: SupabaseConfig.supabaseUrl,
+      anonKey: SupabaseConfig.supabaseAnonKey,
+    );
+    print('✅ Supabase inicializado com sucesso');
+  } catch (e) {
+    print('❌ Erro ao inicializar Supabase: $e');
+  }
 
   runApp(const MyApp());
 }

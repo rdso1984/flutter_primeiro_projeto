@@ -1,7 +1,9 @@
 import 'package:bikehubb/common/app_constants.dart';
-import 'package:bikehubb/common/app_footer.dart';
+import 'package:bikehubb/features/shared/app_footer.dart';
+import 'package:bikehubb/features/shared/bikehubb_appbar.dart';
+import 'package:bikehubb/features/shared/bikehubb_drawer.dart';
 import 'package:bikehubb/services/auth_service.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -45,7 +47,8 @@ class _LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: BikeHubbAppBar(fadeAnimation: _fadeAnimation),
+      drawer: const BikeHubbDrawer(),
       body: Container(
         color: AppColors.backgroundColor,
         child: SafeArea(
@@ -319,10 +322,15 @@ class _LoginPageState extends State<LoginPage>
   }
 
   Future<void> _handleLogin() async {
+    print('🚀 Iniciando processo de login...');
+    
     // Valida o formulário
     if (!(_formKey.currentState?.validate() ?? false)) {
+      print('❌ Validação do formulário falhou');
       return;
     }
+
+    print('✅ Formulário validado');
 
     // Remove o foco do teclado
     FocusScope.of(context).unfocus();
@@ -332,16 +340,24 @@ class _LoginPageState extends State<LoginPage>
       _isLoading = true;
     });
 
+    print('📧 Email: ${_emailController.text.trim()}');
+    print('🔑 Senha length: ${_passwordController.text.length}');
+
     try {
       // Faz login com Supabase
+      print('🔄 Chamando AuthService...');
       final result = await _authService.signInWithEmail(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
+      print('📦 Resultado recebido: ${result['success']}');
+      print('💬 Mensagem: ${result['message']}');
+
       if (!mounted) return;
 
       if (result['success']) {
+        print('✅ Login bem-sucedido, navegando para dashboard...');
         // Login bem-sucedido - navega para dashboard
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -358,6 +374,7 @@ class _LoginPageState extends State<LoginPage>
           (route) => false,
         );
       } else {
+        print('❌ Login falhou: ${result['message']}');
         // Login falhou - mostra mensagem de erro
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -368,6 +385,9 @@ class _LoginPageState extends State<LoginPage>
         );
       }
     } catch (e) {
+      print('💥 ERRO CRÍTICO: $e');
+      print('📍 Stack trace: ${StackTrace.current}');
+      
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

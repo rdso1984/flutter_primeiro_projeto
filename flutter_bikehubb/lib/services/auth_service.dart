@@ -27,44 +27,47 @@ class AuthService {
     required String password,
   }) async {
     try {
+      print('🔐 Tentando login com email: $email');
+      
       final response = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
+      print('📧 Resposta do Supabase recebida');
+
       if (response.user != null) {
+        print('✅ Login bem-sucedido para: ${response.user!.email}');
         return {
           'success': true,
           'message': 'Login realizado com sucesso!',
           'user': response.user,
         };
       } else {
+        print('❌ Login falhou: usuário nulo');
         return {
           'success': false,
           'message': 'Erro ao fazer login. Tente novamente.',
         };
       }
     } on AuthException catch (e) {
+      print('❌ AuthException: ${e.message}');
       // Tratamento de erros específicos do Supabase
-      String errorMessage;
-
-      switch (e.statusCode) {
-        case '400':
-          errorMessage = 'Email ou senha inválidos.';
-          break;
-        case '401':
-          errorMessage = 'Email ou senha incorretos.';
-          break;
-        case '422':
-          errorMessage = 'Email não confirmado. Verifique seu email.';
-          break;
-        default:
-          errorMessage = e.message;
+      String errorMessage = e.message;
+      
+      // Mensagens personalizadas para erros comuns
+      if (e.message.toLowerCase().contains('invalid login')) {
+        errorMessage = 'Email ou senha incorretos.';
+      } else if (e.message.toLowerCase().contains('email not confirmed')) {
+        errorMessage = 'Email não confirmado. Verifique seu email.';
+      } else if (e.message.toLowerCase().contains('invalid email')) {
+        errorMessage = 'Email inválido.';
       }
 
       return {'success': false, 'message': errorMessage};
     } catch (e) {
-      return {'success': false, 'message': 'Erro inesperado: ${e.toString()}'};
+      print('❌ Erro inesperado: $e');
+      return {'success': false, 'message': 'Erro ao conectar: ${e.toString()}'};
     }
   }
 

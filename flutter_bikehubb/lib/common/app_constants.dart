@@ -41,6 +41,7 @@ class AppDimensions {
   static const double paddingMedium = 16.0;
   static const double paddingLarge = 24.0;
   static const double paddingXLarge = 32.0;
+  static const double paddingXXLarge = 40.0;
 
   // Widths e Heights
   static const double maxFormWidth = 400.0;
@@ -98,7 +99,7 @@ class AppTextStyles {
 
   // Subtítulos
   static const TextStyle subtitle = TextStyle(
-    fontSize: 14,
+    fontSize: 16,
     color: AppColors.textWhite,
   );
 

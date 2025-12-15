@@ -1,7 +1,8 @@
 import 'package:bikehubb/common/app_constants.dart';
-import 'package:bikehubb/common/app_footer.dart';
+import 'package:bikehubb/features/shared/app_footer.dart';
+import 'package:bikehubb/features/shared/bikehubb_appbar.dart';
+import 'package:bikehubb/features/shared/bikehubb_drawer.dart';
 import 'package:bikehubb/common/stat_card.dart';
-import 'package:bikehubb/features/shared/drawer_bikehubb.dart';
 import 'package:bikehubb/models/bike_ad.dart';
 import 'package:bikehubb/services/bike_ad_service.dart';
 import 'package:bikehubb/widgets/bike_ad_card.dart';
@@ -50,69 +51,8 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: DrawerBikehubb(),
-      appBar: AppBar(
-        // backgroundColor: Color.fromRGBO(35, 39, 42, 1),
-        backgroundColor: AppColors.appBarColor,
-        leading: Builder(
-          builder: (context) => Container(
-            margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Image.asset(
-                'assets/images/bikehubb_logo.png',
-                width: 24,
-                height: 24,
-                color: Color(0xFF22c55e),
-              ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            ),
-          ),
-        ),
-        title: AnimatedBuilder(
-          animation: _fadeAnimation,
-          builder: (context, child) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(width: 24),
-                Text(
-                  'BikeHubb',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color.lerp(
-                      Color.fromARGB(255, 24, 92, 62), // Cor mais escura
-                      Color(0xFF22c55e), // Cor original
-                      _fadeAnimation.value,
-                    ),
-                    fontFamily: 'Segoe UI, Roboto',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    shadows: [
-                      Shadow(
-                        offset: Offset(0, 0),
-                        blurRadius: 20,
-                        color: const Color.fromARGB(
-                          255,
-                          27,
-                          145,
-                          63,
-                        ).withOpacity(0.5),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-        toolbarHeight: 70,
-      ),
+      appBar: BikeHubbAppBar(fadeAnimation: _fadeAnimation, showDrawer: true),
+      drawer: const BikeHubbDrawer(),
 
       body: SingleChildScrollView(
         child: Column(
@@ -278,13 +218,14 @@ class _HomePageState extends State<HomePage>
 
             // Seção de estatísticas
             Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF1c222e), Color(0xFF179447)],
-                ),
-              ),
+              color: Color(0xFF179447),
+              // decoration: BoxDecoration(
+              //   gradient: LinearGradient(
+              //     begin: Alignment.topLeft,
+              //     end: Alignment.bottomRight,
+              //     colors: [Color(0xFF1c222e), Color(0xFF179447)],
+              //   ),
+              // ),
               child: Center(
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.7,

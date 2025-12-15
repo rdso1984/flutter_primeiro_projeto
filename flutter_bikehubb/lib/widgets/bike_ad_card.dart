@@ -29,23 +29,32 @@ class BikeAdCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Imagem da bicicleta
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                child: AspectRatio(
-                  aspectRatio: 4 / 3,
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+              child: SizedBox(
+                height: 200,
+                width: double.infinity,
                 child: bikeAd.imageUrl.startsWith('http')
                     ? Image.network(
                         bikeAd.imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
+                          print('❌ Erro ao carregar imagem: $error');
                           return Container(
                             color: Color(0xFF1c222e),
-                            child: Image.asset( 
-                              'assets/images/bikehubb_logo.png',
-                              width: 20,
-                              height: 20,
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.image_not_supported,
+                                      color: Colors.white38, size: 50),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Imagem não disponível',
+                                    style: TextStyle(color: Colors.white38),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -67,40 +76,39 @@ class BikeAdCard extends StatelessWidget {
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: Color(0xFF1c222e),
-                            child: Image.asset( 
-                              'assets/images/bikehubb_logo.png',
-                              width: 20,
-                              height: 20,
+                            child: Center(
+                              child: Image.asset(
+                                'assets/images/bikehubb_logo.png',
+                                width: 80,
+                                height: 80,
+                              ),
                             ),
                           );
                         },
                       ),
-                ),
               ),
             ),
             // Informações do anúncio
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Título
                   Text(
                     bikeAd.title,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  SizedBox(height: 8),
                   // Condição
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _getConditionColor(bikeAd.condition),
                       borderRadius: BorderRadius.circular(4),
@@ -114,6 +122,7 @@ class BikeAdCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  SizedBox(height: 8),
                   // Localização
                   Row(
                     children: [
@@ -136,6 +145,7 @@ class BikeAdCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  SizedBox(height: 8),
                   // Preço
                   Text(
                     'R\$ ${bikeAd.price.toStringAsFixed(2).replaceAll('.', ',')}',
@@ -146,7 +156,6 @@ class BikeAdCard extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
               ),
             ),
           ],
