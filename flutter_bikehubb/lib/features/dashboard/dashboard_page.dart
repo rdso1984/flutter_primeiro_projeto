@@ -22,39 +22,13 @@ class _DashboardPageState extends State<DashboardPage>
   late Animation<double> _fadeAnimation;
   late AnimationController _animationController;
   final BikeAdService _bikeAdService = BikeAdService();
-
-  // Anúncios mockados para teste
-  List<BikeAd> _getMockBikes() {
-    return [
-      BikeAd(
-        id: '1',
-        title: 'Mountain Bike Caloi Explorer',
-        description: 'Bicicleta de montanha aro 29, 21 marchas, freios a disco',
-        price: 1500.00,
-        imageUrl: 'https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?w=500',
-        condition: 'used',
-        location: 'São Paulo, SP',
-      ),
-      BikeAd(
-        id: '2',
-        title: 'Speed Oggi Velloce Disc',
-        description: 'Bicicleta speed de alta performance, carbono',
-        price: 3200.00,
-        imageUrl: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500',
-        condition: 'excellent',
-        location: 'Rio de Janeiro, RJ',
-      ),
-      BikeAd(
-        id: '3',
-        title: 'BMX Street Edition',
-        description: 'BMX para manobras e street, rodas reforçadas',
-        price: 800.00,
-        imageUrl: 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=500',
-        condition: 'new',
-        location: 'Curitiba, PR',
-      ),
-    ];
-  }
+  
+  Map<String, int> _stats = {
+    'active': 0,
+    'total': 0,
+    'pendingPayment': 0,
+    'expiringSoon': 0,
+  };
 
   @override
   void initState() {
@@ -69,7 +43,24 @@ class _DashboardPageState extends State<DashboardPage>
     );
 
     _animationController.repeat(reverse: true);
+    _loadStats();
   }
+
+  Future<void> _loadStats() async {
+    final stats = await _bikeAdService.getUserBikesStats();
+    if (mounted) {
+      setState(() {
+        _stats = stats;
+      });
+    }
+  }
+
+  Future<void> _refreshData() async {
+    await _loadStats();
+    setState(() {}); // Força rebuild para recarregar FutureBuilder
+  }
+
+
 
   @override
   void dispose() {
@@ -132,7 +123,7 @@ class _DashboardPageState extends State<DashboardPage>
                             Expanded(
                               child: _buildStatCard(
                                 'Anúncios Ativos',
-                                '0',
+                                _stats['active']?.toString() ?? '0',
                                 Icons.check_circle_outline,
                                 AppColors.primaryGreen,
                               ),
@@ -141,7 +132,7 @@ class _DashboardPageState extends State<DashboardPage>
                             Expanded(
                               child: _buildStatCard(
                                 'Total de Anúncios',
-                                '0',
+                                _stats['total']?.toString() ?? '0',
                                 Icons.list_alt,
                                 Colors.blue,
                               ),
@@ -154,7 +145,7 @@ class _DashboardPageState extends State<DashboardPage>
                             Expanded(
                               child: _buildStatCard(
                                 'Aguardando Pagamento',
-                                '0',
+                                _stats['pendingPayment']?.toString() ?? '0',
                                 Icons.payment,
                                 Colors.orange,
                               ),
@@ -163,7 +154,7 @@ class _DashboardPageState extends State<DashboardPage>
                             Expanded(
                               child: _buildStatCard(
                                 'Expiram em 7 dias',
-                                '0',
+                                _stats['expiringSoon']?.toString() ?? '0',
                                 Icons.schedule,
                                 Colors.red,
                               ),
@@ -178,13 +169,88 @@ class _DashboardPageState extends State<DashboardPage>
                           textAlign: TextAlign.start,
                         ),
                         SizedBox(height: AppDimensions.paddingMedium),
-                        // Usando anúncios mockados temporariamente
-                        ..._getMockBikes().map((bike) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildBikeAdCardWithActions(bike),
-                          );
-                        }).toList(),
+                        // Buscar anúncios do usuário no Supabase
+                        FutureBuilder<List<BikeAd>>(
+                          future: _bikeAdService.getUserBikes(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Padding(
+                                padding: EdgeInsets.all(40),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF22c55e),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                      size: 60,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'Erro ao carregar anúncios: ${snapshot.error}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              return Padding(
+                                padding: const EdgeInsets.all(40),
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.inbox_outlined,
+                                      color: Colors.white38,
+                                      size: 80,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const Text(
+                                      'Você ainda não tem anúncios',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'Clique em "Novo Anúncio" para criar',
+                                      style: TextStyle(
+                                        color: Colors.white38,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            final bikes = snapshot.data!;
+                            return Column(
+                              children: bikes.map((bike) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: _buildBikeAdCardWithActions(bike),
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -285,11 +351,11 @@ class _DashboardPageState extends State<DashboardPage>
                 // Botão Pagar
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => _handlePayment(bike),
+                    onPressed: bike.isPaid ? null : () => _handlePayment(bike),
                     icon: const Icon(Icons.payment, size: 18),
-                    label: const Text('Pagar'),
+                    label: Text(bike.isPaid ? 'Pago' : 'Pagar'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: bike.isPaid ? Colors.grey : Colors.orange,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(
@@ -342,9 +408,8 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  void _handlePayment(BikeAd bike) {
-    // TODO: Implementar lógica de pagamento
-    showDialog(
+  void _handlePayment(BikeAd bike) async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.cardBackground,
@@ -353,30 +418,45 @@ class _DashboardPageState extends State<DashboardPage>
           style: TextStyle(color: AppColors.textWhite),
         ),
         content: Text(
-          'Processar pagamento para o anúncio: ${bike.title}',
+          'Deseja confirmar o pagamento para o anúncio: ${bike.title}?\n\nValor: R\$ ${bike.price.toStringAsFixed(2)}',
           style: const TextStyle(color: AppColors.textWhite70),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Funcionalidade de pagamento em desenvolvimento'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-            },
+            onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
             child: const Text('Confirmar Pagamento'),
           ),
         ],
       ),
     );
+
+    if (confirm == true) {
+      final success = await _bikeAdService.markAsPaid(bike.id);
+      
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pagamento confirmado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        await _refreshData(); // Recarrega dados
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao processar pagamento'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _handleEdit(BikeAd bike) {
@@ -389,8 +469,8 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  void _handleDelete(BikeAd bike) {
-    showDialog(
+  void _handleDelete(BikeAd bike) async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.cardBackground,
@@ -399,31 +479,45 @@ class _DashboardPageState extends State<DashboardPage>
           style: TextStyle(color: AppColors.textWhite),
         ),
         content: Text(
-          'Deseja realmente excluir o anúncio "${bike.title}"?',
+          'Deseja realmente excluir o anúncio "${bike.title}"?\n\nEsta ação não pode ser desfeita.',
           style: const TextStyle(color: AppColors.textWhite70),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: Implementar lógica de exclusão no banco
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Anúncio "${bike.title}" excluído'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
+            onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Excluir'),
           ),
         ],
       ),
     );
+
+    if (confirm == true) {
+      final success = await _bikeAdService.deleteBike(bike.id);
+      
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Anúncio "${bike.title}" excluído com sucesso'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        await _refreshData(); // Recarrega dados
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao excluir anúncio'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildStatCard(

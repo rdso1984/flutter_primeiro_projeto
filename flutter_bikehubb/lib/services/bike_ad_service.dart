@@ -1,139 +1,377 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/bike_ad.dart';
 
 class BikeAdService {
-  // Simulação de busca no banco de dados
-  // Substitua isso pela sua implementação real de banco de dados
-  Future<List<BikeAd>> getFeaturedBikes({int limit = 4}) async {
-    // Simula um delay de rede
-    await Future.delayed(Duration(seconds: 1));
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-    // Dados de exemplo - substitua pela consulta real ao seu banco de dados
-    // Exemplo com Firebase, Supabase, SQLite, etc.
-    return [
-      BikeAd(
-        id: '1',
-        title: 'Mountain Bike Specialized Rockhopper',
-        description: 'Bicicleta de montanha em excelente estado, com suspensão dianteira e freios a disco.',
-        price: 2500.00,
-        imageUrl: 'https://via.placeholder.com/400x300/1c222e/22c55e?text=Mountain+Bike',
-        condition: 'excellent',
-        location: 'São Paulo, SP',
-      ),
-      BikeAd(
-        id: '2',
-        title: 'Speed Bike Caloi 10',
-        description: 'Bicicleta speed para estrada, leve e rápida.',
-        price: 1800.00,
-        imageUrl: 'https://via.placeholder.com/400x300/1c222e/22c55e?text=Speed+Bike',
-        condition: 'used',
-        location: 'Rio de Janeiro, RJ',
-      ),
-      BikeAd(
-        id: '3',
-        title: 'Bike Elétrica Sense E-Urban',
-        description: 'Bicicleta elétrica nova, ideal para deslocamentos urbanos.',
-        price: 4500.00,
-        imageUrl: 'https://via.placeholder.com/400x300/1c222e/22c55e?text=E-Bike',
-        condition: 'new',
-        location: 'Belo Horizonte, MG',
-      ),
-      BikeAd(
-        id: '4',
-        title: 'BMX Mongoose Legion',
-        description: 'BMX para manobras, estrutura reforçada.',
-        price: 1200.00,
-        imageUrl: 'https://via.placeholder.com/400x300/1c222e/22c55e?text=BMX',
-        condition: 'used',
-        location: 'Curitiba, PR',
-      ),
-    ];
-
-    /* 
-    // EXEMPLO COM FIREBASE FIRESTORE:
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('bike_ads')
-        .where('featured', isEqualTo: true)
-        .limit(limit)
-        .get();
-    
-    return snapshot.docs
-        .map((doc) => BikeAd.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
-    */
-
-    /*
-    // EXEMPLO COM SUPABASE:
-    final response = await Supabase.instance.client
-        .from('bike_ads')
-        .select()
-        .eq('featured', true)
-        .limit(limit);
-    
-    return (response as List)
-        .map((item) => BikeAd.fromJson(item))
-        .toList();
-    */
-
-    /*
-    // EXEMPLO COM API REST:
-    final response = await http.get(
-      Uri.parse('https://sua-api.com/api/bike-ads?featured=true&limit=$limit'),
-    );
-    
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      return data.map((item) => BikeAd.fromJson(item)).toList();
-    } else {
-      throw Exception('Falha ao carregar anúncios');
-    }
-    */
-  }
-
-  // Buscar todos os anúncios
-  Future<List<BikeAd>> getAllBikes() async {
-    await Future.delayed(Duration(seconds: 1));
-    
-    // Implemente a busca completa aqui
-    return getFeaturedBikes(limit: 100);
-  }
-
-  // Buscar anúncio por ID
-  Future<BikeAd?> getBikeById(String id) async {
-    await Future.delayed(Duration(milliseconds: 500));
-    
-    final bikes = await getFeaturedBikes();
+  /// Busca todos os anúncios do usuário logado
+  Future<List<BikeAd>> getUserBikes() async {
     try {
-      return bikes.firstWhere((bike) => bike.id == id);
+      final userEmail = _supabase.auth.currentUser?.email;
+      
+      if (userEmail == null) {
+        print('❌ Usuário não está logado');
+        return [];
+      }
+
+      print('🔍 Buscando anúncios do usuário: $userEmail');
+
+      // Busca o user_id (bigint) na tabela users usando o UUID do auth
+      final userResponse = await _supabase
+          .from('users')
+          .select('id')
+          .eq('external_id', _supabase.auth.currentUser!.id)
+          .single();
+      
+      final userId = userResponse['id'];
+      print('📋 User ID encontrado: $userId');
+
+      final response = await _supabase
+          .from('bicycles')
+          .select('''
+            id,
+            title,
+            description,
+            price,
+            condition,
+            city,
+            state,
+            is_active,
+            is_paid,
+            expires_at,
+            created_at,
+            payment_date,
+            status,
+            user_id,
+            bike_images!inner(id, original_filename, is_primary)
+          ''')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      print('📦 Resposta do Supabase: ${response.length} anúncios encontrados');
+
+      final bikes = (response as List).map((item) {
+        // Pega a primeira imagem ou a imagem primária
+        String imageUrl = '';
+        if (item['bike_images'] != null && (item['bike_images'] as List).isNotEmpty) {
+          final images = item['bike_images'] as List;
+          // Tenta encontrar a imagem primária primeiro
+          final primaryImage = images.firstWhere(
+            (img) => img['is_primary'] == true,
+            orElse: () => images.first,
+          );
+          
+          // Constrói a URL do Supabase Storage
+          final bikeId = item['id'];
+          final filename = primaryImage['original_filename'];
+          imageUrl = _supabase.storage
+              .from('bicycle_images')
+              .getPublicUrl('$bikeId/$filename');
+        }
+        
+        // Adiciona a URL da imagem no item
+        final itemWithImage = Map<String, dynamic>.from(item);
+        itemWithImage['image_url'] = imageUrl;
+        
+        return BikeAd.fromJson(itemWithImage);
+      }).toList();
+
+      print('✅ ${bikes.length} anúncios carregados');
+      return bikes;
     } catch (e) {
+      print('❌ Erro ao buscar anúncios: $e');
+      return [];
+    }
+  }
+
+  /// Busca anúncios em destaque (para página inicial)
+  Future<List<BikeAd>> getFeaturedBikes({int limit = 4}) async {
+    try {
+      print('🔍 Buscando anúncios em destaque...');
+
+      final response = await _supabase
+          .from('bicycles')
+          .select('''
+            id,
+            title,
+            description,
+            price,
+            condition,
+            city,
+            state,
+            is_active,
+            is_paid,
+            expires_at,
+            created_at,
+            payment_date,
+            status,
+            user_id,
+            bike_images!inner(id, original_filename, is_primary)
+          ''')
+          .eq('is_active', true)
+          .eq('is_paid', true)
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      print('📦 ${response.length} anúncios em destaque encontrados');
+
+      final bikes = (response as List).map((item) {
+        String imageUrl = '';
+        if (item['bike_images'] != null && (item['bike_images'] as List).isNotEmpty) {
+          final images = item['bike_images'] as List;
+          final primaryImage = images.firstWhere(
+            (img) => img['is_primary'] == true,
+            orElse: () => images.first,
+          );
+          
+          final bikeId = item['id'];
+          final filename = primaryImage['original_filename'];
+          imageUrl = _supabase.storage
+              .from('bicycle_images')
+              .getPublicUrl('$bikeId/$filename');
+        }
+        
+        final itemWithImage = Map<String, dynamic>.from(item);
+        itemWithImage['image_url'] = imageUrl;
+        
+        return BikeAd.fromJson(itemWithImage);
+      }).toList();
+
+      return bikes;
+    } catch (e) {
+      print('❌ Erro ao buscar anúncios em destaque: $e');
+      return [];
+    }
+  }
+
+  /// Busca anúncio por ID
+  Future<BikeAd?> getBikeById(String id) async {
+    try {
+      final response = await _supabase
+          .from('bicycles')
+          .select('''
+            id,
+            title,
+            description,
+            price,
+            condition,
+            city,
+            state,
+            is_active,
+            is_paid,
+            expires_at,
+            created_at,
+            payment_date,
+            status,
+            user_id,
+            bike_images(id, original_filename, is_primary)
+          ''')
+          .eq('id', id)
+          .single();
+
+      String imageUrl = '';
+      if (response['bike_images'] != null && (response['bike_images'] as List).isNotEmpty) {
+        final images = response['bike_images'] as List;
+        final primaryImage = images.firstWhere(
+          (img) => img['is_primary'] == true,
+          orElse: () => images.first,
+        );
+        
+        final filename = primaryImage['original_filename'];
+        imageUrl = _supabase.storage
+            .from('bicycle_images')
+            .getPublicUrl('$id/$filename');
+      }
+      
+      final itemWithImage = Map<String, dynamic>.from(response);
+      itemWithImage['image_url'] = imageUrl;
+
+      return BikeAd.fromJson(itemWithImage);
+    } catch (e) {
+      print('❌ Erro ao buscar anúncio: $e');
       return null;
     }
   }
 
-  // Buscar por filtros
+  /// Atualiza o status de pagamento do anúncio
+  Future<bool> markAsPaid(String bikeId) async {
+    try {
+      await _supabase
+          .from('bicycles')
+          .update({
+            'is_paid': true,
+            'payment_date': DateTime.now().toIso8601String(),
+            'status': 'active',
+          })
+          .eq('id', bikeId);
+
+      print('✅ Anúncio marcado como pago');
+      return true;
+    } catch (e) {
+      print('❌ Erro ao atualizar pagamento: $e');
+      return false;
+    }
+  }
+
+  /// Exclui um anúncio
+  Future<bool> deleteBike(String bikeId) async {
+    try {
+      await _supabase.from('bicycles').delete().eq('id', bikeId);
+
+      print('✅ Anúncio excluído');
+      return true;
+    } catch (e) {
+      print('❌ Erro ao excluir anúncio: $e');
+      return false;
+    }
+  }
+
+  /// Calcula estatísticas dos anúncios do usuário
+  Future<Map<String, int>> getUserBikesStats() async {
+    try {
+      final userEmail = _supabase.auth.currentUser?.email;
+      
+      if (userEmail == null) return {};
+
+      final bikes = await getUserBikes();
+
+      final stats = {
+        'active': bikes.where((b) => b.isActive && b.isPaid).length,
+        'total': bikes.length,
+        'pendingPayment': bikes.where((b) => !b.isPaid).length,
+        'expiringSoon': bikes.where((b) => b.expiresIn7Days).length,
+      };
+
+      print('📊 Estatísticas: $stats');
+      return stats;
+    } catch (e) {
+      print('❌ Erro ao calcular estatísticas: $e');
+      return {};
+    }
+  }
+
+  /// Busca todos os anúncios (para uso geral)
+  Future<List<BikeAd>> getAllBikes() async {
+    try {
+      final response = await _supabase
+          .from('bicycles')
+          .select('''
+            id,
+            title,
+            description,
+            price,
+            condition,
+            city,
+            state,
+            is_active,
+            is_paid,
+            expires_at,
+            created_at,
+            payment_date,
+            status,
+            user_id,
+            bike_images(id, original_filename, is_primary)
+          ''')
+          .order('created_at', ascending: false);
+
+      final bikes = (response as List).map((item) {
+        String imageUrl = '';
+        if (item['bike_images'] != null && (item['bike_images'] as List).isNotEmpty) {
+          final images = item['bike_images'] as List;
+          final primaryImage = images.firstWhere(
+            (img) => img['is_primary'] == true,
+            orElse: () => images.first,
+          );
+          
+          final bikeId = item['id'];
+          final filename = primaryImage['original_filename'];
+          imageUrl = _supabase.storage
+              .from('bicycle_images')
+              .getPublicUrl('$bikeId/$filename');
+        }
+        
+        final itemWithImage = Map<String, dynamic>.from(item);
+        itemWithImage['image_url'] = imageUrl;
+        
+        return BikeAd.fromJson(itemWithImage);
+      }).toList();
+
+      return bikes;
+    } catch (e) {
+      print('❌ Erro ao buscar todos os anúncios: $e');
+      return [];
+    }
+  }
+
+  /// Busca anúncios por filtros
   Future<List<BikeAd>> searchBikes({
     String? query,
     double? maxPrice,
     String? condition,
   }) async {
-    await Future.delayed(Duration(seconds: 1));
-    
-    var bikes = await getAllBikes();
-    
-    if (query != null && query.isNotEmpty) {
-      bikes = bikes.where((bike) => 
-        bike.title.toLowerCase().contains(query.toLowerCase()) ||
-        bike.description.toLowerCase().contains(query.toLowerCase())
-      ).toList();
+    try {
+      var queryBuilder = _supabase
+          .from('bicycles')
+          .select('''
+            id,
+            title,
+            description,
+            price,
+            condition,
+            city,
+            state,
+            is_active,
+            is_paid,
+            expires_at,
+            created_at,
+            payment_date,
+            status,
+            user_id,
+            bike_images(id, original_filename, is_primary)
+          ''')
+          .eq('is_active', true)
+          .eq('is_paid', true);
+
+      if (query != null && query.isNotEmpty) {
+        queryBuilder = queryBuilder.or('title.ilike.%$query%,description.ilike.%$query%');
+      }
+
+      if (maxPrice != null) {
+        queryBuilder = queryBuilder.lte('price', maxPrice);
+      }
+
+      if (condition != null) {
+        queryBuilder = queryBuilder.eq('condition', condition);
+      }
+
+      final response = await queryBuilder.order('created_at', ascending: false);
+
+      final bikes = (response as List).map((item) {
+        String imageUrl = '';
+        if (item['bike_images'] != null && (item['bike_images'] as List).isNotEmpty) {
+          final images = item['bike_images'] as List;
+          final primaryImage = images.firstWhere(
+            (img) => img['is_primary'] == true,
+            orElse: () => images.first,
+          );
+          
+          final bikeId = item['id'];
+          final filename = primaryImage['original_filename'];
+          imageUrl = _supabase.storage
+              .from('bicycle_images')
+              .getPublicUrl('$bikeId/$filename');
+        }
+        
+        final itemWithImage = Map<String, dynamic>.from(item);
+        itemWithImage['image_url'] = imageUrl;
+        
+        return BikeAd.fromJson(itemWithImage);
+      }).toList();
+
+      return bikes;
+    } catch (e) {
+      print('❌ Erro ao buscar anúncios: $e');
+      return [];
     }
-    
-    if (maxPrice != null) {
-      bikes = bikes.where((bike) => bike.price <= maxPrice).toList();
-    }
-    
-    if (condition != null) {
-      bikes = bikes.where((bike) => bike.condition == condition).toList();
-    }
-    
-    return bikes;
   }
 }
