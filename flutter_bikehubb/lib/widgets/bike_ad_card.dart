@@ -34,9 +34,10 @@ class BikeAdCard extends StatelessWidget {
               child: SizedBox(
                 height: 200,
                 width: double.infinity,
-                child: bikeAd.imageUrl.startsWith('http')
+                child: bikeAd.imageUrl.startsWith('https')
                     ? Image.network(
-                        bikeAd.imageUrl,
+                        // bikeAd.imageUrl,   TODO: DEPOIS ARRUMAR ISSO AQUI
+                        'https://krlhnihkslmmihprkwqm.supabase.co/storage/v1/object/public/bicycle-images/12bd565a-9fab-4eca-8b60-525528a3cbc7/1754983329840-bicicleta.webp',
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           print('❌ Erro ao carregar imagem: $error');

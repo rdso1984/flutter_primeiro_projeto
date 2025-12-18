@@ -43,7 +43,7 @@ class BikeAdService {
             payment_date,
             status,
             user_id,
-            bike_images!inner(id, original_filename, is_primary)
+            bike_images!inner(id, original_filename, is_primary, bicycle_id)
           ''')
           .eq('user_id', userId)
           .order('created_at', ascending: false);
@@ -62,11 +62,18 @@ class BikeAdService {
           );
           
           // Constrói a URL do Supabase Storage
-          final bikeId = item['id'];
+          final imageId = primaryImage['id'];  // UUID da imagem, não da bicicleta
           final filename = primaryImage['original_filename'];
+          
+          print('📷 DEBUG - image_id: $imageId');
+          print('📷 DEBUG - filename: $filename');
+          
+          // Formato correto: bicycle-images/{image_id}/{timestamp-filename}
           imageUrl = _supabase.storage
-              .from('bicycle_images')
-              .getPublicUrl('$bikeId/$filename');
+              .from('bicycle-images')
+              .getPublicUrl('$imageId/$filename');
+          
+          print('🔗 URL gerada: $imageUrl');
         }
         
         // Adiciona a URL da imagem no item
@@ -106,7 +113,7 @@ class BikeAdService {
             payment_date,
             status,
             user_id,
-            bike_images!inner(id, original_filename, is_primary)
+            bike_images!inner(id, original_filename, is_primary, bicycle_id)
           ''')
           .eq('is_active', true)
           .eq('is_paid', true)
@@ -124,11 +131,11 @@ class BikeAdService {
             orElse: () => images.first,
           );
           
-          final bikeId = item['id'];
+          final imageId = primaryImage['id'];
           final filename = primaryImage['original_filename'];
           imageUrl = _supabase.storage
-              .from('bicycle_images')
-              .getPublicUrl('$bikeId/$filename');
+              .from('bicycle-images')
+              .getPublicUrl('$imageId/$filename');
         }
         
         final itemWithImage = Map<String, dynamic>.from(item);
@@ -164,7 +171,7 @@ class BikeAdService {
             payment_date,
             status,
             user_id,
-            bike_images(id, original_filename, is_primary)
+            bike_images(id, original_filename, is_primary, bicycle_id)
           ''')
           .eq('id', id)
           .single();
@@ -177,10 +184,11 @@ class BikeAdService {
           orElse: () => images.first,
         );
         
+        final imageId = primaryImage['id'];
         final filename = primaryImage['original_filename'];
         imageUrl = _supabase.storage
-            .from('bicycle_images')
-            .getPublicUrl('$id/$filename');
+            .from('bicycle-images')
+            .getPublicUrl('$imageId/$filename');
       }
       
       final itemWithImage = Map<String, dynamic>.from(response);
@@ -270,7 +278,7 @@ class BikeAdService {
             payment_date,
             status,
             user_id,
-            bike_images(id, original_filename, is_primary)
+            bike_images(id, original_filename, is_primary, bicycle_id)
           ''')
           .order('created_at', ascending: false);
 
@@ -283,11 +291,11 @@ class BikeAdService {
             orElse: () => images.first,
           );
           
-          final bikeId = item['id'];
+          final imageId = primaryImage['id'];
           final filename = primaryImage['original_filename'];
           imageUrl = _supabase.storage
-              .from('bicycle_images')
-              .getPublicUrl('$bikeId/$filename');
+              .from('bicycle-images')
+              .getPublicUrl('$imageId/$filename');
         }
         
         final itemWithImage = Map<String, dynamic>.from(item);
@@ -327,7 +335,7 @@ class BikeAdService {
             payment_date,
             status,
             user_id,
-            bike_images(id, original_filename, is_primary)
+            bike_images(id, original_filename, is_primary, bicycle_id)
           ''')
           .eq('is_active', true)
           .eq('is_paid', true);
@@ -355,11 +363,11 @@ class BikeAdService {
             orElse: () => images.first,
           );
           
-          final bikeId = item['id'];
+          final imageId = primaryImage['id'];
           final filename = primaryImage['original_filename'];
           imageUrl = _supabase.storage
-              .from('bicycle_images')
-              .getPublicUrl('$bikeId/$filename');
+              .from('bicycle-images')
+              .getPublicUrl('$imageId/$filename');
         }
         
         final itemWithImage = Map<String, dynamic>.from(item);

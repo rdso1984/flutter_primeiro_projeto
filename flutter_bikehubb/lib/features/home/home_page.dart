@@ -72,6 +72,40 @@ class _HomePageState extends State<HomePage>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      AnimatedBuilder(
+                        animation: _fadeAnimation,
+                        builder: (context, child) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'BikeHubb',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Color.lerp(
+                                    AppColors.darkGreen,
+                                    AppColors.primaryGreen,
+                                    _fadeAnimation.value,
+                                  ),
+                                  fontFamily: AppTextStyles.fontFamily,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w900,
+                                  shadows: [
+                                    Shadow(
+                                      offset: const Offset(0, 0),
+                                      blurRadius: 20,
+                                      color: AppColors.shadowGreen.withOpacity(
+                                        0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                       Image.asset(
                         'assets/images/bikehubb_logo.png',
                         width: 150,
@@ -210,6 +244,7 @@ class _HomePageState extends State<HomePage>
                           ),
                         ),
                       ),
+                      SizedBox(height: 30),
                     ],
                   ),
                 ),

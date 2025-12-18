@@ -41,39 +41,6 @@ class BikeHubbAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             )
           : null,
-      title: AnimatedBuilder(
-        animation: fadeAnimation,
-        builder: (context, child) {
-          return Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              const SizedBox(width: 24),
-              Text(
-                'BikeHubb',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color.lerp(
-                    AppColors.darkGreen,
-                    AppColors.primaryGreen,
-                    fadeAnimation.value,
-                  ),
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  shadows: [
-                    Shadow(
-                      offset: const Offset(0, 0),
-                      blurRadius: 20,
-                      color: AppColors.shadowGreen.withOpacity(0.5),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
       toolbarHeight: 70,
     );
   }
