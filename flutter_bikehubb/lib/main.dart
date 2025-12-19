@@ -2,6 +2,7 @@ import 'package:bikehubb/config/supabase_config.dart';
 import 'package:bikehubb/features/dashboard/dashboard_page.dart';
 import 'package:bikehubb/features/home/home_page.dart';
 import 'package:bikehubb/features/login/login_page.dart';
+import 'package:bikehubb/features/sell/sell_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomePage(),
         '/login': (context) => const LoginPage(),
         '/dashboard': (context) => const DashboardPage(),
+        '/sell': (context) => const SellPage(),
       },
     );
   }

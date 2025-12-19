@@ -49,25 +49,39 @@ class _LoginPageState extends State<LoginPage>
     return Scaffold(
       appBar: BikeHubbAppBar(fadeAnimation: _fadeAnimation),
       drawer: const BikeHubbDrawer(),
+      
       body: Container(
         color: AppColors.backgroundColor,
         child: SafeArea(
           child: SingleChildScrollView(
-            child: ConstrainedBox(
+            child: Container(
+              width: MediaQuery.of(context).size.width,
               constraints: BoxConstraints(
-                minHeight:
-                    MediaQuery.of(context).size.height -
-                    kToolbarHeight -
-                    MediaQuery.of(context).padding.top -
-                    MediaQuery.of(context).padding.bottom,
+                minHeight: MediaQuery.of(context).size.height - 100,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildLoginForm(),
-                  const SizedBox(height: 40),
-                  const AppFooter(),
-                ],
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1c222e), Color(0xFF179447)],
+                ),
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight:
+                      MediaQuery.of(context).size.height -
+                      kToolbarHeight -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildLoginForm(),
+                    const SizedBox(height: 40),
+                    const AppFooter(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -76,49 +90,49 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.appBarColor,
-      toolbarHeight: 70,
-      title: AnimatedBuilder(
-        animation: _fadeAnimation,
-        builder: (context, child) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                AppAssets.logo,
-                height: AppDimensions.logoSizeSmall,
-                width: AppDimensions.logoSizeSmall,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'BikeHubb',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color.lerp(
-                    AppColors.darkGreen,
-                    AppColors.primaryGreen,
-                    _fadeAnimation.value,
-                  ),
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  shadows: [
-                    Shadow(
-                      offset: const Offset(0, 0),
-                      blurRadius: 20,
-                      color: AppColors.shadowGreen.withOpacity(0.5),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+  // PreferredSizeWidget _buildAppBar() {
+  //   return AppBar(
+  //     backgroundColor: AppColors.appBarColor,
+  //     toolbarHeight: 70,
+  //     title: AnimatedBuilder(
+  //       animation: _fadeAnimation,
+  //       builder: (context, child) {
+  //         return Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Image.asset(
+  //               AppAssets.logo,
+  //               height: AppDimensions.logoSizeSmall,
+  //               width: AppDimensions.logoSizeSmall,
+  //             ),
+  //             const SizedBox(width: 12),
+  //             Text(
+  //               'BikeHubb',
+  //               textAlign: TextAlign.center,
+  //               style: TextStyle(
+  //                 color: Color.lerp(
+  //                   AppColors.darkGreen,
+  //                   AppColors.primaryGreen,
+  //                   _fadeAnimation.value,
+  //                 ),
+  //                 fontFamily: AppTextStyles.fontFamily,
+  //                 fontSize: 24,
+  //                 fontWeight: FontWeight.w900,
+  //                 shadows: [
+  //                   Shadow(
+  //                     offset: const Offset(0, 0),
+  //                     blurRadius: 20,
+  //                     color: AppColors.shadowGreen.withOpacity(0.5),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
   Widget _buildLoginForm() {
     return Container(

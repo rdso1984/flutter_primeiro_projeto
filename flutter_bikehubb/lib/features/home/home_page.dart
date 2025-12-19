@@ -8,11 +8,11 @@ import 'package:bikehubb/services/bike_ad_service.dart';
 import 'package:bikehubb/widgets/bike_ad_card.dart';
 import 'package:flutter/material.dart';
 
-enum PopupMenuPages {
-  homepage,
-  login,
-  // register,
-}
+// enum PopupMenuPages {
+//   homepage,
+//   login,
+//   // register,
+// }
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

@@ -110,7 +110,7 @@ class _DashboardPageState extends State<DashboardPage>
                   const SizedBox(height: AppDimensions.paddingXXLarge),
                   NavigationButton(
                     label: 'Novo Anúncio',
-                    navigationTo: '/novo_anuncio',
+                    navigationTo: '/sell',
                   ),
                   const SizedBox(height: AppDimensions.paddingXXLarge),
                   // Estatísticas dos Anúncios
